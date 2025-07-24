@@ -104,7 +104,7 @@ Test your API:
 ### 6. Run the Streamlit frontend
 ```
 cd frontend
-streamlit run app.py
+streamlit run layoff_app.py
 ```
 
 ### Example API request 🎯
