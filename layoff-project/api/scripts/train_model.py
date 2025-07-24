@@ -9,14 +9,19 @@ from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report, confusion_matrix
-from models.preprocess_pipeline import build_preprocessing_pipeline
+from api.preprocess.preprocess_pipeline import build_preprocessing_pipeline
+import os
 
 # ----------------------------------------
 # Load Data
 # ----------------------------------------
 
 # Load data
-df = pd.read_csv("data/layoffs.csv")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+csv_path = os.path.join(BASE_DIR, "data", "layoffs.csv")
+
+df = pd.read_csv(csv_path)
+# df = pd.read_csv("data/layoffs.csv")
 
 # ----------------------------------------
 # Create layoff_severity target
@@ -139,6 +144,13 @@ print(classification_report(y_test, y_pred_test))
 print("\nConfusion Matrix on Test Set:")
 print(confusion_matrix(y_test, y_pred_test))
 
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
+MODEL_DIR = os.path.join(BASE_DIR, "trained_model")
+model_path = os.path.join(MODEL_DIR, "layoff_pipeline.joblib")
+joblib.dump(best_pipeline, model_path)
+print(f"Model saved to {model_path}")
+
 # Save pipeline
-joblib.dump(best_pipeline, "models/layoff_pipeline.joblib")
-print("\n✅ Pipeline saved as models/layoff_pipeline.joblib")
+# joblib.dump(best_pipeline, "../api/trained_model/layoff_pipeline.joblib")
+# print("\n✅ Pipeline saved as api/trained_model/layoff_pipeline.joblib")

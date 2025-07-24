@@ -3,11 +3,22 @@ import pandas as pd
 import plotly.express as px
 
 
+import requests
+
+API_URL = "http://localhost:8000/data"
+
+
 def show():
     st.title("📊 Layoff Data Insights Dashboard")
 
-    # Load your real dataset here
-    df = pd.read_csv("data/layoffs.csv")  # adjust path as needed
+    response = requests.get(API_URL)
+    if response.status_code != 200:
+        st.error("Failed to fetch data from backend.")
+        return
+
+    # Convert JSON to DataFrame
+    data = response.json()  # parses the JSON string
+    df = pd.DataFrame(data)
 
     # Extract year from date
     if "year" not in df.columns:
@@ -71,8 +82,16 @@ def show():
             "Layoff Severity Distribution by Country",
             "Layoff Severity Distribution by Industry",
             "Distribution of Layoff Percentages",
+            "Top 10 Countries by Number of Layoffs",
+            "Top 10 Industries by Number of Layoffs",
+            "Yearly Layoffs Trend",
         ],
-        default=["Layoffs by Industry Type Over Years", "Number of Layoffs Per Year"],
+        default=[
+            "Layoffs by Industry Type Over Years",
+            "Number of Layoffs Per Year",
+            "Yearly Layoffs Trend",
+            "Top 10 Countries by Number of Layoffs",
+        ],
     )
 
     # 1. Layoffs by Industry Type Over Years
@@ -133,3 +152,55 @@ def show():
         st.write("🔎 Preview of percentage_laid_off values:")
         st.write(df["percentage_laid_off"].describe())
         st.write(df["percentage_laid_off"].head(10))
+
+    # 6. "Top 10 Countries by Number of Layoffs"
+    if "Top 10 Countries by Number of Layoffs" in options:
+        st.subheader("Top 10 Countries by Number of Layoffs")
+        country_counts = (
+            df.groupby("country")["total_laid_off"]
+            .sum()
+            .sort_values(ascending=False)
+            .head(10)
+        )
+        st.bar_chart(country_counts)
+
+    # 7. "Top 10 Industries by Number of Layoffs"
+    if "Top 10 Industries by Number of Layoffs" in options:
+        st.subheader("Top 10 Industries by Number of Layoffs")
+        industry_counts = (
+            df.groupby("industry")["total_laid_off"]
+            .sum()
+            .sort_values(ascending=False)
+            .head(10)
+        )
+        st.bar_chart(industry_counts)
+
+    # 8. "Yearly Layoffs Trend"
+    if "Yearly Layoffs Trend" in options:
+        df["date"] = pd.to_datetime(
+            df["date"], errors="coerce", infer_datetime_format=True
+        )
+
+        # Remove rows with invalid or missing dates
+        df = df.dropna(subset=["date"])
+
+        # Ensure total_laid_off is numeric
+        df["total_laid_off"] = pd.to_numeric(
+            df["total_laid_off"], errors="coerce"
+        ).fillna(0)
+
+        # Extract year as integer
+        df["year"] = df["date"].dt.year.astype(int)
+
+        # ---------------------
+        # Aggregate yearly
+        # ---------------------
+        yearly_trend = (
+            df.groupby("year", as_index=False)["total_laid_off"]
+            .sum()
+            .sort_values("year")
+        )
+        yearly_trend["year"] = yearly_trend["year"].astype(int)
+        # Display chart with proper x-axis
+        st.subheader("Yearly Layoffs Trend")
+        st.line_chart(yearly_trend.set_index("year"))  # x-axis
