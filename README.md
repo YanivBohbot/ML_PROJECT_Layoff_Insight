@@ -83,7 +83,7 @@ python -m scripts.train_model
 ```
 Otherwise, a trained model is already saved at:
 ```
-models/layoff_pipeline.joblib
+api/models/layoff_pipeline.joblib
 ```
 ### 5. Start the FastAPI backend
 ```
