@@ -79,7 +79,7 @@ pip install -r requirements.txt
 ### 4. Train the model 
 If you want to retrain the model from scratch:
 ```
-python -m scripts.train_model
+python -m api.scripts.train_model
 ```
 Otherwise, a trained model is already saved at:
 ```
