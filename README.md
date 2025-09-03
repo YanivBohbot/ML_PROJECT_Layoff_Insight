@@ -123,4 +123,22 @@ Send a JSON like this:
     "predicted_class": 1,
     "severity_label": "Medium (10-50%)"
 }
+
+Send a JSON like this:
+{
+    "total_laid_off": 15,
+    "perc_laid_off": 4.5,
+    "funds_raised": "300",
+    "industry": "Logistic",
+    "country": "United States",
+    "stage": "Series A"
+}
+
+{
+    "predicted_class": 1,
+    "severity_label": "Predicted Severity: Low (≤10%)"
+}
+
+
+
 ```
