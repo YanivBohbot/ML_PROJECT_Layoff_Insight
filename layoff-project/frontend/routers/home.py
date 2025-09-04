@@ -1,5 +1,10 @@
 import streamlit as st
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+API_BASE_URL = os.getenv("API_BASE_URL")
 
 
 def show():
@@ -29,11 +34,11 @@ def show():
         "Unknown",
     ]
 
-    total_laid_off = st.number_input("Total Laid Off", min_value=0)
+    total_laid_off = st.number_input("Total Laid Off in 2020-2024", min_value=0)
     perc_laid_off = st.number_input(
-        "Percentage Laid Off", min_value=0.0, max_value=100.0
+        "Percentage Laid Off of workforce in companie", min_value=0.0, max_value=100.0
     )
-    funds_raised = st.text_input("Funds Raised (e.g. $120)")
+    funds_raised = st.text_input("Funds Raised (e.g. $120K)")
     industry = st.selectbox("Industry", industries)
     country = st.selectbox("Country", countries)
     stage = st.selectbox("Stage", stages)
@@ -48,7 +53,7 @@ def show():
             "stage": stage,
         }
 
-        response = requests.post("http://localhost:8000/predict", json=payload)
+        response = requests.post(f"{API_BASE_URL}/predict", json=payload)
 
         if response.status_code == 200:
             result = response.json()

@@ -1,0 +1,39 @@
+{
+  "best_model": "XGBoost",
+  "accuracy": 0.9772357723577236,
+  "macro_f1": 0.976407245753657,
+  "per_class": [
+    {
+      "class_id": 0,
+      "label": "Low (\u226410%)",
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 225
+    },
+    {
+      "class_id": 1,
+      "label": "Medium (10-50%)",
+      "precision": 0.9800995024875622,
+      "recall": 0.9516908212560387,
+      "f1": 0.9656862745098039,
+      "support": 207
+    },
+    {
+      "class_id": 2,
+      "label": "High (>50%)",
+      "precision": 1.0,
+      "recall": 0.9836065573770492,
+      "f1": 0.9917355371900827,
+      "support": 61
+    },
+    {
+      "class_id": 3,
+      "label": "Unknown severity",
+      "precision": 0.9224806201550387,
+      "recall": 0.9754098360655737,
+      "f1": 0.9482071713147411,
+      "support": 122
+    }
+  ]
+}

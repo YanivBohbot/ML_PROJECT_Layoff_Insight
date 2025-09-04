@@ -1,5 +1,6 @@
 # scripts/train_model.py
 
+import argparse
 import pandas as pd
 import numpy as np
 import joblib
@@ -8,20 +9,49 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import classification_report, confusion_matrix
+from pathlib import Path
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+)
 from api.preprocess.preprocess_pipeline import build_preprocessing_pipeline
 import os
+from api.scripts.performance_artifacts import (
+    save_performance_artifacts,
+)
 
 # ----------------------------------------
 # Load Data
 # ----------------------------------------
+parser = argparse.ArgumentParser()
+parser.add_argument("--data", type=str, default=None, help="Path to CSV to train on")
+args = parser.parse_args()
+
 
 # Load data
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-csv_path = os.path.join(BASE_DIR, "data", "layoffs.csv")
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# csv_path = os.path.join(BASE_DIR, "data", "layoffs.csv")
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_CSV = PROJECT_ROOT / "data" / "layoffs.csv"
+
+if args.data:
+    print("Retraining with new dataset")
+    candidate = Path(args.data)
+    csv_path = candidate if candidate.is_absolute() else (PROJECT_ROOT / args.data)
+else:
+    print("Retraining with  dataset layoff")
+    csv_path = DEFAULT_CSV
 
 df = pd.read_csv(csv_path)
-# df = pd.read_csv("data/layoffs.csv")
+print(f"Training on: {csv_path}")
+
+
+# ----------------------------------------
+# retraining the new uploaded dataset
+# ----------------------------------------
+def retrain_new_dataset():
+    return
+
 
 # ----------------------------------------
 # Create layoff_severity target
@@ -102,10 +132,10 @@ models = {
         max_iter=500, class_weight="balanced", multi_class="multinomial"
     ),
     "RandomForest": RandomForestClassifier(
-        n_estimators=200, class_weight="balanced", random_state=42
+        n_estimators=200, class_weight="balanced", random_state=42, n_jobs=-1
     ),
     "XGBoost": XGBClassifier(
-        objective="multi:softmax",
+        objective="multi:softprob",
         num_class=4,
         eval_metric="mlogloss",
         use_label_encoder=False,
@@ -144,12 +174,25 @@ print(classification_report(y_test, y_pred_test))
 print("\nConfusion Matrix on Test Set:")
 print(confusion_matrix(y_test, y_pred_test))
 
-
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
 MODEL_DIR = os.path.join(BASE_DIR, "trained_model")
 model_path = os.path.join(MODEL_DIR, "layoff_pipeline.joblib")
 joblib.dump(best_pipeline, model_path)
 print(f"Model saved to {model_path}")
+
+
+classes = np.sort(y.unique())
+class_labels = ["Low (≤10%)", "Medium (10-50%)", "High (>50%)", "Unknown severity"]
+
+
+metrics = save_performance_artifacts(
+    y_test=y_test,
+    y_pred_test=y_pred_test,
+    classes=classes,
+    class_labels=class_labels,
+    best_model=best_model_name,
+)
+
 
 # Save pipeline
 # joblib.dump(best_pipeline, "../api/trained_model/layoff_pipeline.joblib")

@@ -2,7 +2,7 @@ fastapi
 uvicorn
 pydantic
 joblib
-scikit-learn
+scikit-learn==1.7.1
 xgboost
 pandas
 numpy
@@ -12,3 +12,13 @@ matplotlib
 plotly
 streamlit-echarts
 streamlit-aggrid
+python-dotenv
+python-multipart
+google.generativeai
+PyPDF2
+pypdf>=4.2.0
+google-generativeai>=0.7.2
+langchain>=0.2.14
+langchain-google-genai>=2.0.1
+langgraph>=0.2.28
+

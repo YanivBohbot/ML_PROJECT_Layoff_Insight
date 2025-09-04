@@ -4,14 +4,19 @@ import plotly.express as px
 
 
 import requests
+import os
+from dotenv import load_dotenv
 
-API_URL = "http://localhost:8000/data"
+load_dotenv()
+
+
+API_BASE_URL = os.getenv("API_BASE_URL")
 
 
 def show():
     st.title("📊 Layoff Data Insights Dashboard")
 
-    response = requests.get(API_URL)
+    response = requests.get(f"{API_BASE_URL}/data")
     if response.status_code != 200:
         st.error("Failed to fetch data from backend.")
         return
@@ -104,7 +109,7 @@ def show():
             x="year",
             y="total_laid_off",
             color="industry_type",
-            title="Layoffs by Industry Type Over the Years",
+            title="Layoffs by Industry Type Over the Years 2020-2024",
             barmode="group",
         )
         st.plotly_chart(fig1)
